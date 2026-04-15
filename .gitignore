@@ -45,6 +45,8 @@ htmlcov/
 
 # Data — model cache (large files, downloaded at runtime)
 data/model/
+data/model_artifacts/
+_reference_zip/
 
 # Local databases
 *.db
