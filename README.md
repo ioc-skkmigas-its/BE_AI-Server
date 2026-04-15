@@ -44,3 +44,30 @@ Model artifact defaults are configured to use:
 
 - The app performs auto migration on startup when `ENABLE_AUTO_MIGRATION=true`.
 - If Space startup fails, verify all required secrets are present and valid.
+
+## GitHub Actions Deployment
+
+This repository includes a complete workflow at `.github/workflows/deploy-hf-space.yml`.
+
+### What it does
+
+- Runs unit tests: `tests/test_ranking_service.py`
+- Deploys to Hugging Face Space after tests pass
+- Supports both automatic deploy on `main` and manual deploy with `workflow_dispatch`
+
+### Required GitHub Secrets
+
+Add this secret in GitHub Repository Settings -> Secrets and variables -> Actions:
+
+- `HF_TOKEN`: Hugging Face write token with access to `XRyZ/ioc-migas`
+
+Optional GitHub repository variable:
+
+- `HF_SPACE_REPO`: override target space (`owner/name`).
+	If not set, workflow uses `XRyZ/ioc-migas`.
+
+### Trigger behavior
+
+- `pull_request`: run tests only
+- `push` to `main`: run tests and deploy
+- `workflow_dispatch`: run tests and deploy with optional custom target space
