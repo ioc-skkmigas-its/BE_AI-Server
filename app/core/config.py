@@ -32,6 +32,15 @@ class Settings(BaseSettings):
     artifact_bundle_zip_path: str = "./mature-field-candidate-ranking-v4-final-20260414-014711-main.zip"
     artifact_extract_dir: str = "./data/model_artifacts"
 
+    # Preferred artifact source for environments where ZIP is not in git repo.
+    artifact_bundle_hf_repo: str | None = None
+    artifact_bundle_hf_filename: str | None = None
+    hf_token: str | None = None
+
+    # Legacy keys kept for compatibility with existing env files.
+    hf_model_repo: str | None = None
+    model_bundle_filename: str | None = None
+
     xgboost_model_path: str = "./data/model_artifacts/uplift_base_model.joblib"
     xgboost_preprocessor_path: str | None = "./data/model_artifacts/preprocessor.joblib"
     xgboost_feature_manifest_path: str | None = "./data/model_artifacts/artifact_manifest.json"
@@ -39,6 +48,14 @@ class Settings(BaseSettings):
     @property
     def source_monthly_table(self) -> str:
         return self.supabase_monthly_table or self.supabase_wells_table
+
+    @property
+    def artifact_source_repo(self) -> str | None:
+        return self.artifact_bundle_hf_repo or self.hf_model_repo
+
+    @property
+    def artifact_source_filename(self) -> str | None:
+        return self.artifact_bundle_hf_filename or self.model_bundle_filename
 
 
 @lru_cache

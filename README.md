@@ -7,7 +7,7 @@ sdk: docker
 pinned: false
 ---
 
-# IOC MIGAS Ranking API
+## IOC MIGAS Ranking API
 
 FastAPI backend for candidate well ranking with XGBoost artifacts.
 
@@ -27,6 +27,12 @@ Set these in Hugging Face Space Settings -> Variables and secrets:
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_KEY`
 - `SUPABASE_DB_URL` (for auto migration)
+- `HF_TOKEN` (only needed if model bundle is downloaded from HF Hub)
+
+Required when ZIP model bundle is not shipped in Space repo:
+
+- `ARTIFACT_BUNDLE_HF_REPO`
+- `ARTIFACT_BUNDLE_HF_FILENAME`
 
 Optional overrides:
 
@@ -54,6 +60,8 @@ This repository includes a complete workflow at `.github/workflows/deploy-hf-spa
 - Runs unit tests: `tests/test_ranking_service.py`
 - Deploys to Hugging Face Space after tests pass
 - Supports both automatic deploy on `main` and manual deploy with `workflow_dispatch`
+- Builds a deploy mirror that excludes binary files rejected by HF git hook (`*.zip`, `*.joblib`, etc.)
+- Can include tracked `data/` files when requested (non-binary only)
 
 ### Required GitHub Secrets
 
@@ -64,7 +72,14 @@ Add this secret in GitHub Repository Settings -> Secrets and variables -> Action
 Optional GitHub repository variable:
 
 - `HF_SPACE_REPO`: override target space (`owner/name`).
-	If not set, workflow uses `XRyZ/ioc-migas`.
+  If not set, workflow uses `XRyZ/ioc-migas`.
+- `HF_INCLUDE_DATA`: set to `true` if `data/` should be included on automatic deploys.
+
+Optional manual dispatch input:
+
+- `include_data`: set to `true` to include tracked `data/` in deploy mirror.
+  Binary model artifacts (`*.joblib`, `*.pkl`, `*.zip`, `*.ubj`, `*.bst`) remain excluded.
+  `data/model_artifacts` is also gitignored in this repository.
 
 ### Trigger behavior
 

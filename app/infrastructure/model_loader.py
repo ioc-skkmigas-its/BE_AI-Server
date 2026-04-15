@@ -9,6 +9,7 @@ import zipfile
 import joblib
 import numpy as np
 import pandas as pd
+from huggingface_hub import hf_hub_download
 
 try:
     import xgboost as xgb
@@ -207,8 +208,8 @@ class XGBoostModelLoader:
         if target_path.exists():
             return target_path
 
-        bundle_path = Path(self._settings.artifact_bundle_zip_path)
-        if not bundle_path.exists():
+        bundle_path = self._resolve_bundle_zip_path()
+        if bundle_path is None or not bundle_path.exists():
             return target_path
 
         member_name = target_path.name
@@ -227,3 +228,31 @@ class XGBoostModelLoader:
                     shutil.copyfileobj(source_stream, target_stream)
 
         return extracted_path
+
+    def _resolve_bundle_zip_path(self) -> Path | None:
+        bundle_path = Path(self._settings.artifact_bundle_zip_path)
+        if bundle_path.exists():
+            return bundle_path
+
+        repo_id = self._settings.artifact_source_repo
+        filename = self._settings.artifact_source_filename
+        if not repo_id or not filename:
+            return None
+
+        local_dir = bundle_path.parent
+        local_dir.mkdir(parents=True, exist_ok=True)
+
+        downloaded = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            token=self._settings.hf_token,
+            local_dir=str(local_dir),
+        )
+        downloaded_path = Path(downloaded)
+
+        if downloaded_path.resolve() == bundle_path.resolve():
+            return downloaded_path
+
+        if not bundle_path.exists():
+            shutil.copyfile(downloaded_path, bundle_path)
+        return bundle_path
