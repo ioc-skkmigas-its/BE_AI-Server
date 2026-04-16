@@ -96,7 +96,6 @@ jobs:
             --exclude ".pytest_cache/"
             --exclude "__pycache__/"
             --exclude "*.zip"
-            --exclude "*.joblib"
             --exclude "*.pkl"
             --exclude "*.ubj"
             --exclude "*.bst"
